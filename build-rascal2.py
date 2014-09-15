@@ -66,6 +66,9 @@ def status():
     sys.stdout.write('* ')
     sys.stdout.flush()
 
+def set_passwords():
+	pass
+
 def install_tools():
 	for module in INSTALLATION_TOOLS:
 		pip.main(['install', module])
@@ -76,6 +79,7 @@ def install_python_modules():
 
 def install_debian_packages():
 	for package in DEBIAN_PACKAGES_TO_INSTALL:
+		print('Installing package: {0}'.format(package))
 		timer = RepeatingTimer(1.0, status)
 		timer.daemon = True # Allows program to exit if only the thread is alive
 		timer.start()
@@ -84,12 +88,13 @@ def install_debian_packages():
 		timer.cancel()
 
 def disable_bonescript():
-	print "Disabling Bonescript . . ."
+	print('Disabling Bonescript . . .')
 	for service in BONESCRIPT_SERVICES:
 		sh.systemctl('disable', service)
 
 def remove_unneeded_debian_packages():
 	for package in DEBIAN_PACKAGES_TO_REMOVE:
+		print('Removing package: {0}'.format(package))
 		timer = RepeatingTimer(1.0, status)
 		timer.daemon = True # Allows program to exit if only the thread is alive
 		timer.start()
@@ -99,6 +104,7 @@ def remove_unneeded_debian_packages():
 	# then apt-get autoremove?
 
 def install_rascal_software():
+	print('Installing Rascal editor . . .')
 	sh.git.clone('https://github.com/rascalmicro/red.git', '/var/www/editor')
 	sh.git.clone('https://github.com/rascalmicro/demos.git', '/var/www/public')
 	sh.touch('/var/log/uwsgi/public.log')
@@ -114,7 +120,31 @@ def install_rascal_software():
 
 	sh.systemctl('enable', 'nginx.service')
 
+def install_config_files():
+	print('Copying over config files . . .')
+	sh.cp('./emperor.ini', '/etc/uwsgi/emperor.ini')
+	sh.cp('./editor.ini', '/etc/uwsgi/vassals/editor.ini')
+	sh.cp('./public.ini', '/etc/uwsgi/vassals/public.ini')
+	sh.cp('./uwsgi.service', '/etc/systemd/system/uwsgi.service')
+	sh.systemctl('enable', 'uwsgi.service')
+
+def allow_uwsgi_to_control_supervisor():
+	pass
+	# Need to add this stuff to /etc/supervisor/supervisor.conf
+
+	#chmod=0770                       ; socket file mode (default 0700)
+	#chown=root:supervisor
+
+def set_zsh_as_default_shell():
+	pass
+	# chsh
+    # Changing the login shell for root
+    # Enter the new value, or press ENTER for the default
+	# Login Shell [/bin/bash]: /bin/zsh
+	# curl -L https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh | sh
+
 def main():
+	set_passwords()
 	install_tools()
 	import sh
 	disable_bonescript()
@@ -122,3 +152,6 @@ def main():
 	install_debian_packages()
 	install_python_modules()
 	install_rascal_software()
+	install_config_files()
+	allow_uwsgi_to_control_supervisor()
+	set_zsh_as_default_shell()
