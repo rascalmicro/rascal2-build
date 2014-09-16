@@ -2,6 +2,7 @@
 
 import os
 import pip
+import sh
 import subprocess
 import sys
 import threading
@@ -46,8 +47,6 @@ DEBIAN_PACKAGES_TO_REMOVE = [
 
 BONESCRIPT_SERVICES = [
 	'cloud9.service',
-	'gateone.service',
-	'gdm.service',
 	'bonescript.service',
 	'bonescript.socket',
 	'bonescript-autorun.service'
@@ -67,23 +66,25 @@ def status():
     sys.stdout.flush()
 
 def set_passwords():
-	pass
+    print('Setting passwords for root and debian accounts')
 
 def install_tools():
-	for module in INSTALLATION_TOOLS:
-		pip.main(['install', module])
+    for module in INSTALLATION_TOOLS:
+        print('\nInstalling tool: {0}'.format(module))
+        pip.main(['install', module])
 
 def install_python_modules():
 	for module in PYTHON_MODULES_TO_INSTALL:
+        print('\nInstalling Python module: {0}'.format(module))
 		pip.main(['install', module])
 
 def install_debian_packages():
 	for package in DEBIAN_PACKAGES_TO_INSTALL:
-		print('Installing package: {0}'.format(package))
+		print('\nInstalling package: {0}'.format(package))
 		timer = RepeatingTimer(1.0, status)
 		timer.daemon = True # Allows program to exit if only the thread is alive
 		timer.start()
-		proc = subprocess.Popen('apt-get install -y '+ package, shell=True, stdin=None, stdout=open(os.devnull,"wb"), stderr=STDOUT, executable="/bin/bash")
+		proc = subprocess.Popen('apt-get install -y '+ package, shell=True, stdin=None, stdout=open(os.devnull,"wb"), stderr=subprocess.STDOUT, executable="/bin/bash")
 		proc.wait()
 		timer.cancel()
 
@@ -94,11 +95,11 @@ def disable_bonescript():
 
 def remove_unneeded_debian_packages():
 	for package in DEBIAN_PACKAGES_TO_REMOVE:
-		print('Removing package: {0}'.format(package))
+		print('\nRemoving package: {0}'.format(package))
 		timer = RepeatingTimer(1.0, status)
 		timer.daemon = True # Allows program to exit if only the thread is alive
 		timer.start()
-		proc = subprocess.Popen('apt-get remove -y '+ package, shell=True, stdin=None, stdout=open(os.devnull,"wb"), stderr=STDOUT, executable="/bin/bash")
+		proc = subprocess.Popen('apt-get remove -y '+ package, shell=True, stdin=None, stdout=open(os.devnull,"wb"), stderr=subprocess.STDOUT, executable="/bin/bash")
 		proc.wait()
 		timer.cancel()
 	# then apt-get autoremove?
@@ -107,6 +108,7 @@ def install_rascal_software():
 	print('Installing Rascal editor . . .')
 	sh.git.clone('https://github.com/rascalmicro/red.git', '/var/www/editor')
 	sh.git.clone('https://github.com/rascalmicro/demos.git', '/var/www/public')
+    sh.mkdir('/var/log/uwsgi')
 	sh.touch('/var/log/uwsgi/public.log')
 	sh.touch('/var/log/uwsgi/emperor.log')
 	sh.touch('/var/log/uwsgi/editor.log')
@@ -146,7 +148,6 @@ def set_zsh_as_default_shell():
 def main():
 	set_passwords()
 	install_tools()
-	import sh
 	disable_bonescript()
 	remove_unneeded_debian_packages()
 	install_debian_packages()
@@ -155,3 +156,6 @@ def main():
 	install_config_files()
 	allow_uwsgi_to_control_supervisor()
 	set_zsh_as_default_shell()
+
+if __name__ == "__main__":
+    main()
