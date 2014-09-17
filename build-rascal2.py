@@ -46,7 +46,7 @@ def install_debian_packages():
         timer.cancel()
 
 def disable_bonescript():
-    print('Disabling Bonescript . . .')
+    greenprint('Disabling Bonescript . . .')
     for service in BONESCRIPT_SERVICES:
         sh.systemctl('disable', service)
 
@@ -63,24 +63,29 @@ def remove_unneeded_debian_packages():
 
 def install_rascal_software():
     greenprint('Installing Rascal editor . . .')
-    sh.git.clone('https://github.com/rascalmicro/red.git', '/var/www/editor')
-    sh.git.clone('https://github.com/rascalmicro/demos.git', '/var/www/public')
-    sh.mkdir('/var/log/uwsgi')
+    if not (os.path.isdir('/var/www/editor')):
+        sh.git.clone('https://github.com/rascalmicro/red.git', '/var/www/editor')
+    if not (os.path.isdir('/var/www/public')):
+        sh.git.clone('https://github.com/rascalmicro/demos.git', '/var/www/public')
+    if not os.path.isdir('/var/log/uwsgi'):
+        sh.mkdir('/var/log/uwsgi')
     sh.touch('/var/log/uwsgi/public.log')
     sh.touch('/var/log/uwsgi/emperor.log')
     sh.touch('/var/log/uwsgi/editor.log')
     sh.chown('-R', 'www-data', '/var/log/uwsgi')
     sh.chgrp('-R', 'www-data', '/var/log/uwsgi')
 
-    sh.rm('rf', '/var/www/editor/static/codemirror')
-    sh.wget('https://github.com/marijnh/CodeMirror/archive/4.2.0.tar.gz')
-    sh.tar('xzvf', '4.2.0.tar.gz')
-    sh.mv('CodeMirror-4.2.0/', '/var/www/editor/static/codemirror')
+    if os.path.isdir('/var/www/editor/static/codemirror'):
+        sh.rm('-rf', '/var/www/editor/static/codemirror')
+        sh.wget('https://github.com/marijnh/CodeMirror/archive/4.2.0.tar.gz')
+        sh.tar('xzvf', '4.2.0.tar.gz')
+        sh.mv('CodeMirror-4.2.0/', '/var/www/editor/static/codemirror')
 
     sh.systemctl('enable', 'nginx.service')
 
 def install_config_files():
     greenprint('Copying over config files . . .')
+    sh.mkdir('-p', '/etc/uwsgi/vassals')
     sh.cp('./emperor.ini', '/etc/uwsgi/emperor.ini')
     sh.cp('./editor.ini', '/etc/uwsgi/vassals/editor.ini')
     sh.cp('./public.ini', '/etc/uwsgi/vassals/public.ini')
