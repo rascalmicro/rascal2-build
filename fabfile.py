@@ -1,70 +1,58 @@
-#!/usr/bin/python
-
-from colorprint import redprint, greenprint
-import os
+from __future__ import with_statement
 from package_lists import *
-import pip
-import sh
-import subprocess
-import sys
-import threading
+from fabric.api import *
+from fabric.colors import green
+from fabric.contrib.console import confirm
 
-class RepeatingTimer(threading._Timer):
-    def run(self):
-        while True:
-            self.finished.wait(self.interval)
-            if self.finished.is_set():
-                return
-            else:
-                self.function(*self.args, **self.kwargs)
+env.hosts = ['root@beaglebone.local']
 
-def status():
-    sys.stdout.write('* ')
-    sys.stdout.flush()
+def prepare_host():
+    run('pip install -U pip')
+
+def deploy():
+    pass
+#    run('git clone https://github.com/rascalmicro/rascal2-build.git')
+#    with cd('rascal2-build'):
+#        run('python build-rascal2.py')
+
+    set_passwords()
+    disable_bonescript()
+    remove_unneeded_debian_packages()
+    install_debian_packages()
+    install_python_modules()
+    #install_rascal_software()
+    #install_config_files()
+    #allow_uwsgi_to_control_supervisor()
+    #set_zsh_as_default_shell()
 
 def set_passwords():
-    greenprint('Setting passwords for root and debian accounts')
-
-def install_tools():
-    for module in INSTALLATION_TOOLS:
-        greenprint('\nInstalling tool: {0}'.format(module))
-        pip.main(['install', module])
+    print(green('Setting passwords for root and debian accounts'))
 
 def install_python_modules():
     for module in PYTHON_MODULES_TO_INSTALL:
-        greenprint('\nInstalling Python module: {0}'.format(module))
-        pip.main(['install', module])
-        pip.logger.consumers = [] # workaround to prevent duplicate logging
-
-def run_apt_task(cmd, package=''):
-    timer = RepeatingTimer(1.0, status)
-    timer.daemon = True # Allows program to exit if only the thread is alive
-    timer.start()
-    proc = subprocess.Popen(' '.join([cmd, package]), shell=True, stdin=None, stdout=open(os.devnull,"wb"), stderr=subprocess.STDOUT, executable="/bin/bash")
-    proc.wait()
-    timer.cancel()
+        print(green('\nInstalling Python module: {0}'.format(module)))
+        run('pip install ' + module)
 
 def install_debian_packages():
-    greenprint('\nUpdating package repository lists')
-    run_apt_task('apt-get update -y')
+    print(green('\nUpdating package repository lists'))
+    run('apt-get update -y', pty=False)
 
     for package in DEBIAN_PACKAGES_TO_INSTALL:
-        greenprint('\nInstalling package: {0}'.format(package))
-        run_apt_task('apt-get install -y', package)
+        print(green('\nInstalling package: {0}'.format(package)))
+        run('apt-get install -y ' + package, pty=False)
 
-    greenprint('\nRemoving unneeded package remnants')
-    run_apt_task('apt-get autoremove -y')
-    proc = subprocess.Popen('apt-get autoremove -y', shell=True, stdin=None, stdout=open(os.devnull,"wb"), stderr=subprocess.STDOUT, executable="/bin/bash")
+    print(green('\nRemoving unneeded package remnants'))
+    run('apt-get autoremove -y', pty=False)
 
 def disable_bonescript():
-    greenprint('Disabling Bonescript . . .')
+    print(green('Disabling Bonescript . . .'))
     for service in BONESCRIPT_SERVICES:
-        sh.systemctl('disable', service)
+        run('systemctl disable ' + service)
 
 def remove_unneeded_debian_packages():
     for package in DEBIAN_PACKAGES_TO_REMOVE:
-        greenprint('\nRemoving package: {0}'.format(package))
-        run_apt_task('apt-get remove -y', package)
+        print(green('\nRemoving package: {0}'.format(package)))
+        run('apt-get remove -y ' + package, pty=False)
 
 def install_rascal_software():
     greenprint('Installing Rascal editor . . .')
@@ -112,18 +100,3 @@ def set_zsh_as_default_shell():
     # Enter the new value, or press ENTER for the default
     # Login Shell [/bin/bash]: /bin/zsh
     # curl -L https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh | sh
-
-def main():
-    set_passwords()
-    install_tools()
-    disable_bonescript()
-    remove_unneeded_debian_packages()
-    install_debian_packages()
-    install_python_modules()
-    install_rascal_software()
-    install_config_files()
-    allow_uwsgi_to_control_supervisor()
-    set_zsh_as_default_shell()
-
-if __name__ == "__main__":
-    main()
