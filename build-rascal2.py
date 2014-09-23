@@ -34,16 +34,27 @@ def install_python_modules():
     for module in PYTHON_MODULES_TO_INSTALL:
         greenprint('\nInstalling Python module: {0}'.format(module))
         pip.main(['install', module])
+        pip.logger.consumers = [] # workaround to prevent duplicate logging
+
+def run_apt_task(cmd, package=''):
+    timer = RepeatingTimer(1.0, status)
+    timer.daemon = True # Allows program to exit if only the thread is alive
+    timer.start()
+    proc = subprocess.Popen(' '.join([cmd, package]), shell=True, stdin=None, stdout=open(os.devnull,"wb"), stderr=subprocess.STDOUT, executable="/bin/bash")
+    proc.wait()
+    timer.cancel()
 
 def install_debian_packages():
+    greenprint('\nUpdating package repository lists')
+    run_apt_task('apt-get update -y')
+
     for package in DEBIAN_PACKAGES_TO_INSTALL:
         greenprint('\nInstalling package: {0}'.format(package))
-        timer = RepeatingTimer(1.0, status)
-        timer.daemon = True # Allows program to exit if only the thread is alive
-        timer.start()
-        proc = subprocess.Popen('apt-get install -y '+ package, shell=True, stdin=None, stdout=open(os.devnull,"wb"), stderr=subprocess.STDOUT, executable="/bin/bash")
-        proc.wait()
-        timer.cancel()
+        run_apt_task('apt-get install -y', package)
+
+    greenprint('\nRemoving unneeded package remnants')
+    run_apt_task('apt-get autoremove -y')
+    proc = subprocess.Popen('apt-get autoremove -y', shell=True, stdin=None, stdout=open(os.devnull,"wb"), stderr=subprocess.STDOUT, executable="/bin/bash")
 
 def disable_bonescript():
     greenprint('Disabling Bonescript . . .')
@@ -53,13 +64,7 @@ def disable_bonescript():
 def remove_unneeded_debian_packages():
     for package in DEBIAN_PACKAGES_TO_REMOVE:
         greenprint('\nRemoving package: {0}'.format(package))
-        timer = RepeatingTimer(1.0, status)
-        timer.daemon = True # Allows program to exit if only the thread is alive
-        timer.start()
-        proc = subprocess.Popen('apt-get remove -y '+ package, shell=True, stdin=None, stdout=open(os.devnull,"wb"), stderr=subprocess.STDOUT, executable="/bin/bash")
-        proc.wait()
-        timer.cancel()
-    # then apt-get autoremove?
+        run_apt_task('apt-get remove -y', package)
 
 def install_rascal_software():
     greenprint('Installing Rascal editor . . .')
@@ -91,6 +96,7 @@ def install_config_files():
     sh.cp('./public.ini', '/etc/uwsgi/vassals/public.ini')
     sh.cp('./uwsgi.service', '/etc/systemd/system/uwsgi.service')
     sh.systemctl('enable', 'uwsgi.service')
+    sh.cp('./vimrc', '/root/.vimrc')
 
 def allow_uwsgi_to_control_supervisor():
     pass
