@@ -9,6 +9,7 @@ PYTHON_MODULES_TO_INSTALL = [
     'redis',
     'uwsgi',
     'pytronics',
+    'requests',
     'bitstring',
     'webcolors',
     'Flask-Login'
@@ -31,7 +32,7 @@ DEBIAN_PACKAGES_TO_REMOVE = [
     'xscreensaver',
     'xscreensaver-data',
     'xserver-xorg-core',
-    'xserver-common'
+    'xserver-common',
     'libgtk2.0-common', # probably breaks OpenCV
     'libgtk-3-common' # removes Gstreamer and Numpy
 ]
