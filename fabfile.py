@@ -1,29 +1,30 @@
 from __future__ import with_statement
-from package_lists import *
 from fabric.api import *
 from fabric.colors import green
 from fabric.contrib.console import confirm
+from fabric.contrib.files import exists
+from package_lists import *
+import os
 
 env.hosts = ['root@beaglebone.local']
 
-def prepare_host():
-    run('pip install -U pip')
-
+@task
 def deploy():
-    pass
-#    run('git clone https://github.com/rascalmicro/rascal2-build.git')
-#    with cd('rascal2-build'):
-#        run('python build-rascal2.py')
-
+    set_hostname()
     set_passwords()
     disable_bonescript()
     remove_unneeded_debian_packages()
     install_debian_packages()
     install_python_modules()
-    #install_rascal_software()
-    #install_config_files()
-    #allow_uwsgi_to_control_supervisor()
-    #set_zsh_as_default_shell()
+    install_rascal_software()
+    install_config_files()
+    allow_uwsgi_to_control_supervisor()
+    set_zsh_as_default_shell()
+
+def set_hostname():
+	prompt('Enter hostname: ', 'hostname', default='rascal2')
+	print(green('Setting hostname to: ' + env.hostname))
+	run('echo ' + env.hostname + ' > /etc/hostname')
 
 def set_passwords():
     print(green('Setting passwords for root and debian accounts'))
@@ -55,43 +56,41 @@ def remove_unneeded_debian_packages():
         run('apt-get remove -y ' + package, pty=False)
 
 def install_rascal_software():
-    greenprint('Installing Rascal editor . . .')
-    if not (os.path.isdir('/var/www/editor')):
-        sh.git.clone('https://github.com/rascalmicro/red.git', '/var/www/editor')
-    if not (os.path.isdir('/var/www/public')):
-        sh.git.clone('https://github.com/rascalmicro/demos.git', '/var/www/public')
-    if not os.path.isdir('/var/log/uwsgi'):
-        sh.mkdir('/var/log/uwsgi')
-    sh.touch('/var/log/uwsgi/public.log')
-    sh.touch('/var/log/uwsgi/emperor.log')
-    sh.touch('/var/log/uwsgi/editor.log')
-    sh.chown('-R', 'www-data', '/var/log/uwsgi')
-    sh.chgrp('-R', 'www-data', '/var/log/uwsgi')
+    print(green('Installing Rascal editor . . .'))
+    if not exists('/var/www/editor'):
+        run('git clone https://github.com/rascalmicro/red.git /var/www/editor')
+    if not exists('/var/www/public'):
+        run('git clone https://github.com/rascalmicro/demos.git /var/www/public')
+    if not exists('/var/log/uwsgi'):
+        run('mkdir /var/log/uwsgi')
+    run('touch /var/log/uwsgi/public.log')
+    run('touch /var/log/uwsgi/emperor.log')
+    run('touch /var/log/uwsgi/editor.log')
+    run('chown -R www-data /var/log/uwsgi')
+    run('chgrp -R www-data /var/log/uwsgi')
 
     if os.path.isdir('/var/www/editor/static/codemirror'):
-        sh.rm('-rf', '/var/www/editor/static/codemirror')
-        sh.wget('https://github.com/marijnh/CodeMirror/archive/4.2.0.tar.gz')
-        sh.tar('xzvf', '4.2.0.tar.gz')
-        sh.mv('CodeMirror-4.2.0/', '/var/www/editor/static/codemirror')
+        run('rm -rf /var/www/editor/static/codemirror')
+        run('wget https://github.com/marijnh/CodeMirror/archive/4.2.0.tar.gz')
+        run('tar xzvf 4.2.0.tar.gz')
+        run('mv CodeMirror-4.2.0/ /var/www/editor/static/codemirror')
 
-    sh.systemctl('enable', 'nginx.service')
+    run('systemctl enable nginx.service')
 
 def install_config_files():
-    greenprint('Copying over config files . . .')
-    sh.mkdir('-p', '/etc/uwsgi/vassals')
-    sh.cp('./emperor.ini', '/etc/uwsgi/emperor.ini')
-    sh.cp('./editor.ini', '/etc/uwsgi/vassals/editor.ini')
-    sh.cp('./public.ini', '/etc/uwsgi/vassals/public.ini')
-    sh.cp('./uwsgi.service', '/etc/systemd/system/uwsgi.service')
-    sh.systemctl('enable', 'uwsgi.service')
-    sh.cp('./vimrc', '/root/.vimrc')
+    print(green('Copying over config files . . .'))
+    put('default', '/etc/nginx/sites-available/')
+    run('mkdir -p /etc/uwsgi/vassals')
+    put('emperor.ini', '/etc/uwsgi/emperor.ini')
+    put('editor.ini', '/etc/uwsgi/vassals/editor.ini')
+    put('public.ini', '/etc/uwsgi/vassals/public.ini')
+    put('uwsgi.service', '/etc/systemd/system/uwsgi.service')
+    run('systemctl enable uwsgi.service')
+    put('vimrc', '/root/.vimrc')
 
 def allow_uwsgi_to_control_supervisor():
-    pass
-    # Need to add this stuff to /etc/supervisor/supervisor.conf
-
-    #chmod=0770                       ; socket file mode (default 0700)
-    #chown=root:supervisor
+    run('echo "chmod=0770 ; socket file mode (default 0700)" >> /etc/supervisor/supervisor.conf')
+    run('echo "chown=root:supervisor" >> /etc/supervisor/supervisor.conf')
 
 def set_zsh_as_default_shell():
     pass

@@ -1,0 +1,37 @@
+server {
+    listen       80;
+    server_name  localhost;
+
+    location ^~ /editor/static/ {
+        root /var/www/;
+    }
+
+    location ^~ /static/ {
+        root /var/www/public/;
+    }
+
+    location / {
+        uwsgi_pass 127.0.0.1:5000; # public app
+        include uwsgi_params;
+    }
+
+    location /editor/ {
+        uwsgi_pass 127.0.0.1:5001; # editor app
+        include uwsgi_params;
+    }
+
+    error_page 404 /404.html;
+    location = /404.html {
+        root   /var/www/http-errors/;
+    }
+
+    error_page 400 401 402 403 405 406 407 408 409 410 411 412 /4xx.html;
+    location = /4xx.html {
+        root   /var/www/http-errors/;
+    }
+
+    error_page 500 501 502 503 504 507 /50x.html;
+    location = /50x.html {
+        root   /var/www/http-errors/;
+    }
+}
