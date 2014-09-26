@@ -1,7 +1,3 @@
-INSTALLATION_TOOLS = [
-    'sh'
-]
-
 PYTHON_MODULES_TO_INSTALL = [
     'gevent',
     'gevent-websocket',
