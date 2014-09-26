@@ -38,8 +38,7 @@ DEBIAN_PACKAGES_TO_REMOVE = [
 ]
 
 BONESCRIPT_SERVICES = [
-    'cloud9.service',
-    'bonescript.service',
-    'bonescript.socket',
-    'bonescript-autorun.service'
+    'cloud9',
+    'bonescript',
+    'bonescript-autorun'
 ]

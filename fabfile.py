@@ -4,6 +4,7 @@ from fabric.colors import green, red
 from fabric.contrib.console import confirm
 from fabric.contrib.files import exists
 from fabric.operations import reboot
+import fabtools
 from package_lists import *
 import os
 
@@ -59,7 +60,9 @@ def install_debian_packages():
 def disable_bonescript():
     print(green('Disabling Bonescript . . .'))
     for service in BONESCRIPT_SERVICES:
-        run('systemctl disable ' + service)
+        fabtools.systemd.stop_and_disable(service)
+    fabtools.utils.run_as_root('systemctl disable bonescript.socket')
+    fabtools.utils.run_as_root('systemctl disable cloud9.socket')
 
 def remove_unneeded_debian_packages():
     for package in DEBIAN_PACKAGES_TO_REMOVE:
