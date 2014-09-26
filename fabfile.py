@@ -6,7 +6,6 @@ from fabric.contrib.files import exists
 from fabric.operations import reboot
 import fabtools
 from package_lists import *
-import os
 
 env.hosts = ['root@beaglebone.local']
 
@@ -86,7 +85,7 @@ def install_rascal_software():
     run('chown -R www-data /var/log/uwsgi')
     run('chgrp -R www-data /var/log/uwsgi')
 
-    if os.path.isdir('/var/www/editor/static/codemirror'):
+    if exists('/var/www/editor/static/codemirror'):
         run('rm -rf /var/www/editor/static/codemirror')
         run('wget https://github.com/marijnh/CodeMirror/archive/4.2.0.tar.gz')
         run('tar xzvf 4.2.0.tar.gz')
