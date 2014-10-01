@@ -5,15 +5,22 @@ PYTHON_MODULES_TO_INSTALL = [
     'redis',
     'uwsgi',
     'pytronics',
-    'requests',
     'bitstring',
-    'webcolors',
     'Flask-Login'
 ]
 
 DEBIAN_PACKAGES_TO_INSTALL = [
+    'libpq-dev',
     'nginx',
+    'postgis',
+    'postgresql',
     'python-flask',
+    'python-matplotlib',
+    'python-mpltoolkits.basemap',
+    'python-psycopg2',
+    'python-requests',
+    'python-scipy',
+    'python-webcolors',
     'supervisor',
     'zsh'
 ]
