@@ -11,6 +11,7 @@ PYTHON_MODULES_TO_INSTALL = [
 
 DEBIAN_PACKAGES_TO_INSTALL = [
     'libpq-dev',
+    'libftdi-dev',
     'nginx',
     'postgis',
     'postgresql',
