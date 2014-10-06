@@ -21,7 +21,15 @@ def deploy():
     # Need to add:
 
     # Maybe newer version of Scipy? Current version in apt repos is 0.10.1, need 0.11?
-    # Need emorpho
+
     # gpsd
     
-
+    # git clone https://github.com/rascalmicro/emorpho-cpython.git
+    # cd emorpho-cpython
+    # git branch linux
+    # python ./setup.py build
+    # sudo python ./setup.py install
+    
+    # git clone https://github.com/rascalmicro/radmonitor.git
+    # cd radmonitor
+    # mv util/gps.py /usr/local/lib/python2.7/dist-packages/
