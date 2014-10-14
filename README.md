@@ -1,4 +1,4 @@
-*** Other useful stuff ***
+***Other useful stuff***
 
 Kernel upgrade
 
