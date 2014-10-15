@@ -106,8 +106,9 @@ def install_config_files():
     put('gitconfig', '/root/.gitconfig')
 
 def allow_uwsgi_to_control_supervisor():
-    run('echo "chmod=0770 ; socket file mode (default 0700)" >> /etc/supervisor/supervisor.conf')
-    run('echo "chown=root:supervisor" >> /etc/supervisor/supervisor.conf')
+# The lines below leave excess crap in the config file. This should be fixed.
+    run('echo "chmod=0770 ; socket file mode (default 0700)" >> /etc/supervisor/supervisord.conf')
+    run('echo "chown=root:supervisor" >> /etc/supervisor/supervisord.conf')
 
 def set_zsh_as_default_shell():
     pass
