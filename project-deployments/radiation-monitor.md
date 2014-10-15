@@ -13,3 +13,5 @@ Add:
 And at the bottom of the file:
 
     *.*          @logs2.papertrailapp.com:43550
+
+Then `sudo /etc/init.d/rsyslog restart`
