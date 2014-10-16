@@ -110,6 +110,7 @@ def allow_uwsgi_to_control_supervisor():
     run('groupadd supervisor')
     run('usermod -a -G supervisor www-data')
     # The lines below don't write to the right section in the config file. This should be fixed.
+    # Should write to [unix_http_server]
     run('echo "chmod=0770 ; socket file mode (default 0700)" >> /etc/supervisor/supervisord.conf')
     run('echo "chown=root:supervisor" >> /etc/supervisor/supervisord.conf')
 
