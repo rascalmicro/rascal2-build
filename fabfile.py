@@ -84,6 +84,7 @@ def install_rascal_software():
     run('touch /var/log/uwsgi/editor.log')
     run('chown -R www-data /var/log/uwsgi')
     run('chgrp -R www-data /var/log/uwsgi')
+    run('adduser www-data shadow') # just 'read' access so uWSGI can authenticate against /etc/shadow
 
     if exists('/var/www/editor/static/codemirror'):
         run('rm -rf /var/www/editor/static/codemirror')
