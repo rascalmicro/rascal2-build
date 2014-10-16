@@ -2,6 +2,7 @@ PYTHON_MODULES_TO_INSTALL = [
     'gevent',
     'gevent-websocket',
     'Flask-uWSGI-WebSocket',
+    'markdown2',
     'redis',
     'uwsgi',
     'pytronics',
