@@ -107,7 +107,9 @@ def install_config_files():
     put('gitconfig', '/root/.gitconfig')
 
 def allow_uwsgi_to_control_supervisor():
-# The lines below leave excess crap in the config file. This should be fixed.
+    run('groupadd supervisor')
+    run('usermod -a -G supervisor www-data')
+    # The lines below don't write to the right section in the config file. This should be fixed.
     run('echo "chmod=0770 ; socket file mode (default 0700)" >> /etc/supervisor/supervisord.conf')
     run('echo "chown=root:supervisor" >> /etc/supervisor/supervisord.conf')
 
