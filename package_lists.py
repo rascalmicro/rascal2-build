@@ -11,6 +11,7 @@ PYTHON_MODULES_TO_INSTALL = [
 ]
 
 DEBIAN_PACKAGES_TO_INSTALL = [
+    'gcc-avr',
     'gpsd-clients',
     'libpq-dev',
     'libftdi-dev',
