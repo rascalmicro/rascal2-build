@@ -3,7 +3,7 @@ import crypt
 from fabric.api import *
 from fabric.colors import green, red
 from fabric.contrib.console import confirm
-from fabric.contrib.files import exists
+from fabric.contrib.files import exists, sed
 from fabric.operations import local, reboot
 import fabtools
 from package_lists import *
@@ -119,9 +119,13 @@ def install_config_files():
     put('gitconfig', '/root/.gitconfig')
 
 def allow_uwsgi_to_control_supervisor():
-# The lines below leave excess crap in the config file. This should be fixed.
-    run('echo "chmod=0770 ; socket file mode (default 0700)" >> /etc/supervisor/supervisord.conf')
-    run('echo "chown=root:supervisor" >> /etc/supervisor/supervisord.conf')
+    run('groupadd supervisor')
+    run('usermod -a -G supervisor www-data')
+    # The lines below might not write to the right section in the config file. This should be tested.
+    # Should write to [unix_http_server]
+    before = 'chmod=0770 ; socket file mode (default 0700)'
+    after = 'chmod=0770\r\n    chown=root:supervisor'
+    sed('/etc/supervisor/supervisord.conf', before, after)
 
 def set_zsh_as_default_shell():
     pass

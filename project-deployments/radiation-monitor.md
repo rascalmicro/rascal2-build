@@ -37,3 +37,8 @@ Add to `/etc/profile`
     export SYSLOG_PROTO
 
 The proper strings then show up `os.environ`, but this still doesn't seem to work properly.
+
+### Talking to radiation database ###
+
+    psql -U radiation -W -h localhost radiation
+    \dt
