@@ -1,18 +1,28 @@
 from __future__ import with_statement
+import crypt
 from fabric.api import *
 from fabric.colors import green, red
 from fabric.contrib.console import confirm
 from fabric.contrib.files import exists
-from fabric.operations import reboot
+from fabric.operations import local, reboot
 import fabtools
 from package_lists import *
 
-env.hosts = ['root@beaglebone.local']
+env.host = 'beaglebone.local'
+env.user = 'root'
+
+# Usage
+#         fab predeploy deploy:host=new-rascal-host-name
+# or just
+#         fab deploy:host=new-rascal-host-name
+
+@task
+def predeploy():
+    prep_host()
+    set_hostname()
 
 @task
 def deploy():
-    set_hostname()
-    set_passwords()
     disable_bonescript()
     remove_unneeded_debian_packages()
     install_debian_packages()
@@ -23,13 +33,15 @@ def deploy():
     set_zsh_as_default_shell()
     reboot()
 
-def set_hostname():
-	prompt('Enter hostname: ', 'hostname', default='rascal2')
-	print(green('Setting hostname to: ' + env.hostname))
-	run('echo ' + env.hostname + ' > /etc/hostname')
+def prep_host():
+    # Set the password. Can't log in to blank-password host with Fabric.
+    local('./prep_host.sh')
 
-def set_passwords():
-    print(green('Setting passwords for root and debian accounts'))
+def set_hostname():
+    prompt('Enter new hostname: ', 'hostname', default='rascal2')
+    print(green('Setting hostname to: ' + env.hostname))
+    run('echo ' + env.hostname + ' > /etc/hostname')
+    reboot()
 
 def install_python_modules():
     for module in PYTHON_MODULES_TO_INSTALL:
