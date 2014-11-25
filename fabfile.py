@@ -12,9 +12,11 @@ env.host = 'beaglebone.local'
 env.user = 'root'
 
 # Usage
-#         fab predeploy deploy:host=new-rascal-host-name
+#         fab predeploy
+#         <wait for reboot>
+#         fab deploy:host=new-rascal-host-name.local
 # or just
-#         fab deploy:host=new-rascal-host-name
+#         fab deploy:host=new-rascal-host-name.local
 
 @task
 def predeploy():
