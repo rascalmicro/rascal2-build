@@ -26,8 +26,8 @@ DEBIAN_PACKAGES_TO_INSTALL = [
     'python-requests',
     'python-scipy',
     'python-webcolors',
-    'supervisor',
-    'zsh'
+    'supervisor'
+    #'zsh'
 ]
 
 DEBIAN_PACKAGES_TO_REMOVE = [
@@ -48,5 +48,6 @@ DEBIAN_PACKAGES_TO_REMOVE = [
 BONESCRIPT_SERVICES = [
     'cloud9',
     'bonescript',
-    'bonescript-autorun'
+    'bonescript-autorun',
+    'apache2'
 ]

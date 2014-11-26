@@ -16,20 +16,19 @@ env.hosts = ['root@beaglebone.local']
 
 @task
 def deploy():
-    pass
 
-    # Need to add:
-
-    # Maybe newer version of Scipy? Current version in apt repos is 0.10.1, need 0.11?
-
-    # gpsd
+    # scipy 0.14 already installed as long as we stay on Debian Jessie or newer
     
-    # git clone https://github.com/rascalmicro/emorpho-cpython.git
-    # cd emorpho-cpython
-    # git branch linux
-    # python ./setup.py build
-    # sudo python ./setup.py install
+    if not exists('/usr/local/emorpho-cpython'):
+        run('git clone https://github.com/rascalmicro/emorpho-cpython.git /usr/local/emorpho-cpython')
+        with cd('/usr/local/emorpho-cpython'):
+            run('git branch linux')
+            run('python ./setup.py build')
+            run('sudo python ./setup.py install')
     
-    # git clone https://github.com/rascalmicro/radmonitor.git
-    # cd radmonitor
-    # mv util/gps.py /usr/local/lib/python2.7/dist-packages/
+    if not exists('/usr/local/radmonitor'):
+        run('git clone https://github.com/rascalmicro/radmonitor.git /usr/local/radmonitor')
+        with cd('/usr/local/radmonitor'):
+            run('mv util/gps.py /usr/local/lib/python2.7/dist-packages/')
+
+# add supervisor task to run radmonitor

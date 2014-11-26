@@ -25,7 +25,7 @@ def predeploy():
 
 @task
 def deploy():
-    disable_bonescript()
+    disable_bonescript_and_release_http_port()
     remove_unneeded_debian_packages()
     install_debian_packages()
     install_python_modules()
@@ -43,7 +43,17 @@ def set_hostname():
     prompt('Enter new hostname: ', 'hostname', default='rascal2')
     print(green('Setting hostname to: ' + env.hostname))
     run('echo ' + env.hostname + ' > /etc/hostname')
+    print(green('Rebooting . . .'))
     reboot()
+
+def disable_bonescript_and_release_http_port():
+    print(green('Disabling Bonescript . . .'))
+    with settings(warn_only=True):
+        for service in BONESCRIPT_SERVICES:
+            fabtools.systemd.stop_and_disable(service)
+    fabtools.utils.run_as_root('systemctl disable bonescript.socket')
+    fabtools.utils.run_as_root('systemctl disable cloud9.socket')
+    #reboot() # to get init process to release port 80
 
 def install_python_modules():
     for module in PYTHON_MODULES_TO_INSTALL:
@@ -69,13 +79,6 @@ def install_debian_packages():
 
     print(green('\nRemoving unneeded package remnants'))
     run('apt-get autoremove -y', pty=False)
-
-def disable_bonescript():
-    print(green('Disabling Bonescript . . .'))
-    for service in BONESCRIPT_SERVICES:
-        fabtools.systemd.stop_and_disable(service)
-    fabtools.utils.run_as_root('systemctl disable bonescript.socket')
-    fabtools.utils.run_as_root('systemctl disable cloud9.socket')
 
 def remove_unneeded_debian_packages():
     for package in DEBIAN_PACKAGES_TO_REMOVE:
