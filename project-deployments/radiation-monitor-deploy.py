@@ -13,22 +13,23 @@ from fabric.operations import reboot
 import fabtools
 
 env.hosts = ['root@beaglebone.local']
+env.user = 'root'
 
 @task
 def deploy():
 
     # scipy 0.14 already installed as long as we stay on Debian Jessie or newer
-    
-    if not exists('/usr/local/emorpho-cpython'):
-        run('git clone https://github.com/rascalmicro/emorpho-cpython.git /usr/local/emorpho-cpython')
-        with cd('/usr/local/emorpho-cpython'):
-            run('git branch linux')
-            run('python ./setup.py build')
-            run('sudo python ./setup.py install')
-    
+
     if not exists('/usr/local/radmonitor'):
         run('git clone https://github.com/rascalmicro/radmonitor.git /usr/local/radmonitor')
-        with cd('/usr/local/radmonitor'):
-            run('mv util/gps.py /usr/local/lib/python2.7/dist-packages/')
+    with cd('/usr/local/radmonitor'):
+        run('cp util/gps.py /usr/local/lib/python2.7/dist-packages/')
+
+    if not exists('/usr/local/emorpho-cpython'):
+        run('git clone https://github.com/rascalmicro/emorpho-cpython.git /usr/local/emorpho-cpython')
+    with cd('/usr/local/emorpho-cpython'):
+        run('git checkout linux')
+        run('python ./setup.py build') # api/usb.h:5:21: fatal error: windows.h: No such file or directory
+        run('sudo python ./setup.py install')
 
 # add supervisor task to run radmonitor

@@ -41,7 +41,7 @@ DEBIAN_PACKAGES_TO_REMOVE = [
     'xscreensaver-data',
     'xserver-xorg-core',
     'xserver-common',
-    'libgtk2.0-common', # probably breaks OpenCV
+    #'libgtk2.0-common', # probably breaks OpenCV. Also, required by gpsd-clients (and maybe also by some Python libs)
     'libgtk-3-common' # removes Gstreamer and Numpy
 ]
 

@@ -26,6 +26,7 @@ def predeploy():
 @task
 def deploy():
     disable_bonescript_and_release_http_port()
+    update_debian_package_lists()
     remove_unneeded_debian_packages()
     install_debian_packages()
     install_python_modules()
@@ -55,6 +56,10 @@ def disable_bonescript_and_release_http_port():
     fabtools.utils.run_as_root('systemctl disable cloud9.socket')
     #reboot() # to get init process to release port 80
 
+def update_debian_package_lists():
+    print(green('\nUpdating package repository lists'))
+    run('apt-get update -y', pty=False)
+
 def install_python_modules():
     for module in PYTHON_MODULES_TO_INSTALL:
         print(green('\nInstalling Python module: {0}'.format(module)))
@@ -67,9 +72,6 @@ def package_installed(package):
     return result.succeeded
 
 def install_debian_packages():
-    print(green('\nUpdating package repository lists'))
-    run('apt-get update -y', pty=False)
-
     for package in DEBIAN_PACKAGES_TO_INSTALL:
         if not package_installed(package):
             print(green('\nInstalling package: {0}'.format(package)))
@@ -124,13 +126,9 @@ def install_config_files():
     put('gitconfig', '/root/.gitconfig')
 
 def allow_uwsgi_to_control_supervisor():
-    run('groupadd supervisor')
+    run('groupadd -f supervisor')
     run('usermod -a -G supervisor www-data')
-    # The lines below might not write to the right section in the config file. This should be tested.
-    # Should write to [unix_http_server]
-    before = 'chmod=0770 ; socket file mode (default 0700)'
-    after = 'chmod=0770\r\n    chown=root:supervisor'
-    sed('/etc/supervisor/supervisord.conf', before, after)
+    put('supervisord.conf', '/etc/supervisor/supervisord.conf')
 
 def set_zsh_as_default_shell():
     pass
