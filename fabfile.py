@@ -33,6 +33,7 @@ def deploy():
     install_rascal_software()
     install_config_files()
     allow_uwsgi_to_control_supervisor()
+    allow_uwsgi_to_access_usb_port()
     set_zsh_as_default_shell()
     reboot()
 
@@ -129,6 +130,9 @@ def allow_uwsgi_to_control_supervisor():
     run('groupadd -f supervisor')
     run('usermod -a -G supervisor www-data')
     put('supervisord.conf', '/etc/supervisor/supervisord.conf')
+
+def allow_uwsgi_to_access_usb_port():
+    run('usermod -a -G dialout www-data')
 
 def set_zsh_as_default_shell():
     pass

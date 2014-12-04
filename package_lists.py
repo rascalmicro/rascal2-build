@@ -7,13 +7,16 @@ PYTHON_MODULES_TO_INSTALL = [
     'uwsgi',
     'pytronics',
     'bitstring',
-    'Flask-Login'
+    'Flask-Login',
+    'twilio'
 ]
 
 DEBIAN_PACKAGES_TO_INSTALL = [
     'avr-libc',
+    'autossh',
     'gcc-avr',
     'gpsd-clients',
+    'ipython-notebook',
     'libpq-dev',
     'libftdi-dev',
     'nginx',
@@ -26,7 +29,9 @@ DEBIAN_PACKAGES_TO_INSTALL = [
     'python-requests',
     'python-scipy',
     'python-webcolors',
-    'supervisor'
+    'supervisor',
+    'vim,'
+    'zip'
     #'zsh'
 ]
 
