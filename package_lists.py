@@ -16,9 +16,11 @@ DEBIAN_PACKAGES_TO_INSTALL = [
     'autossh',
     'gcc-avr',
     'gpsd-clients',
+    'htop',
     'ipython-notebook',
     'libpq-dev',
     'libftdi-dev',
+    'lsof',
     'nginx',
     'postgis',
     'postgresql',
@@ -29,6 +31,7 @@ DEBIAN_PACKAGES_TO_INSTALL = [
     'python-requests',
     'python-scipy',
     'python-webcolors',
+    'strace',
     'supervisor',
     'vim,'
     'zip'
