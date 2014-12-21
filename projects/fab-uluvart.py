@@ -1,3 +1,5 @@
+# Copy over autossh.conf
+#
 # Run once: ssh-keygen
 #
 # Append /root/.ssh/id_rsa.pub to rascalmicro.com, /home/sms/.ssh/authorized_keys
