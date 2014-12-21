@@ -33,7 +33,7 @@ DEBIAN_PACKAGES_TO_INSTALL = [
     'python-webcolors',
     'strace',
     'supervisor',
-    'vim,'
+    'vim,',
     'zip'
     #'zsh'
 ]
