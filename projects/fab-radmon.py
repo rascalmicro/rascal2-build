@@ -2,7 +2,7 @@
 
 # This is a fabfile for deploying code with Fabric: http://fabfile.org
 #
-# You can run this file with a command like this: fab -f radiation-monitor-deploy.py deploy
+# You can run this file with a command like this: fab -f fab-radmon.py deploy:host=new-rascal-host-name.local
 
 from __future__ import with_statement
 from fabric.api import *
@@ -33,3 +33,5 @@ def deploy():
         run('sudo python ./setup.py install')
 
 # add supervisor task to run radmonitor
+
+# Copy psql-update to BBB

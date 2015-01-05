@@ -1,4 +1,5 @@
 PYTHON_MODULES_TO_INSTALL = [
+    'geopy',
     'gevent',
     'gevent-websocket',
     'Flask-uWSGI-WebSocket',
@@ -23,6 +24,7 @@ DEBIAN_PACKAGES_TO_INSTALL = [
     'lsof',
     'nginx',
     'postgis',
+    'postgresql-9.1-postgis',
     'postgresql',
     'python-flask',
     'python-matplotlib',
@@ -33,7 +35,7 @@ DEBIAN_PACKAGES_TO_INSTALL = [
     'python-webcolors',
     'strace',
     'supervisor',
-    'vim,'
+    'vim',
     'zip'
     #'zsh'
 ]
