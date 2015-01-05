@@ -20,7 +20,8 @@ env.user = 'root'
 
 @task
 def predeploy():
-    prep_host()
+    local('ssh-keygen -R beaglebone.local') # remove host key, if it exists
+    prep_host() # # Set the password. Can't log in to blank-password host with Fabric.
     set_hostname()
 
 @task

@@ -1,5 +1,7 @@
 #!/bin/sh
 
+# Set the password. Can't log in to blank-password host with Fabric.
+
 # New hashes can be generated in two ways:
 #
 # 1. Use passwd on a Rascal, copy the hash from /etc/shadow.
