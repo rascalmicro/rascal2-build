@@ -12,6 +12,11 @@ PYTHON_MODULES_TO_INSTALL = [
     'twilio'
 ]
 
+# Reformatted Debian package list, as a manual workaround for an annoying apt bug that
+# will surely be fixed any day now
+#
+# avr-libc autossh gcc-avr gpsd-clients htop ipython-notebook libpq-dev libftdi-dev lsof nginx postgis postgresql python-flask python-matplotlib python-mpltoolkits.basemap python-psycopg2 python-requests python-scipy python-webcolors strace supervisor vim zip
+
 DEBIAN_PACKAGES_TO_INSTALL = [
     'avr-libc',
     'autossh',
