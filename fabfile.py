@@ -126,6 +126,8 @@ def install_config_files():
     run('systemctl enable uwsgi.service')
     put('vimrc', '/root/.vimrc')
     put('gitconfig', '/root/.gitconfig')
+    put('issue.net', '/etc/issue.net')
+    run('ln -fs /etc/issue.net /etc/issue')
 
 def allow_uwsgi_to_control_supervisor():
     run('groupadd -f supervisor')
