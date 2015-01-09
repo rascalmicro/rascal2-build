@@ -1,0 +1,9 @@
+/////////////////////////////////////////
+//                                     //
+// Rascal Micro                        //
+// Small computers for art and science //
+//                                     //
+/////////////////////////////////////////
+
+date: \d
+release: \r
