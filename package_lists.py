@@ -29,7 +29,6 @@ DEBIAN_PACKAGES_TO_INSTALL = [
     'lsof',
     'nginx',
     'postgis',
-    'postgresql-9.1-postgis',
     'postgresql',
     'python-flask',
     'python-matplotlib',
