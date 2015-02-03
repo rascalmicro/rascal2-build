@@ -40,8 +40,8 @@ DEBIAN_PACKAGES_TO_INSTALL = [
     'strace',
     'supervisor',
     'vim',
-    'zip'
-    #'zsh'
+    'zip',
+    'zsh'
 ]
 
 DEBIAN_PACKAGES_TO_REMOVE = [

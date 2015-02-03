@@ -35,7 +35,8 @@ def deploy():
     install_config_files()
     allow_uwsgi_to_control_supervisor()
     allow_uwsgi_to_access_usb_port()
-    set_zsh_as_default_shell()
+    install_oh_my_zsh()
+    print(green('Rascal 2 deployment complete. Rebooting . . .'))
     reboot()
 
 def prep_host():
@@ -137,13 +138,8 @@ def allow_uwsgi_to_control_supervisor():
 def allow_uwsgi_to_access_usb_port():
     run('usermod -a -G dialout www-data')
 
-def set_zsh_as_default_shell():
-    pass
-    # chsh
-    # Changing the login shell for root
-    # Enter the new value, or press ENTER for the default
-    # Login Shell [/bin/bash]: /bin/zsh
-    # curl -L https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh | sh
+def install_oh_my_zsh():
+    run('wget --no-check-certificate http://install.ohmyz.sh -O - | sh')
 
 ### END DEPLOY SECTION ###
 
