@@ -7,6 +7,7 @@ PYTHON_MODULES_TO_INSTALL = [
     'redis',
     'uwsgi',
     'pytronics',
+    'pytumblr',
     'bitstring',
     'Flask-Login',
     'twilio'
@@ -20,6 +21,7 @@ PYTHON_MODULES_TO_INSTALL = [
 DEBIAN_PACKAGES_TO_INSTALL = [
     'avr-libc',
     'autossh',
+    'fswebcam',
     'gcc-avr',
     'gpsd-clients',
     'htop',
