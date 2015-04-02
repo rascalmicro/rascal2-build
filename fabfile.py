@@ -29,13 +29,16 @@ def deploy():
     disable_bonescript_and_release_http_port()
     update_debian_package_lists()
     remove_unneeded_debian_packages()
-    install_debian_packages()
+    for package in DEBIAN_PACKAGES_TO_INSTALL:
+        install_debian_package(package)
     install_python_modules()
     install_rascal_software()
     install_config_files()
     allow_uwsgi_to_control_supervisor()
     allow_uwsgi_to_access_usb_port()
+    install_libpruio()
     install_oh_my_zsh()
+    autoremove_debian_package_remnants()
     print(green('Rascal 2 deployment complete. Rebooting . . .'))
     reboot()
 
@@ -74,14 +77,14 @@ def package_installed(package):
         result = run(cmd)
     return result.succeeded
 
-def install_debian_packages():
-    for package in DEBIAN_PACKAGES_TO_INSTALL:
-        if not package_installed(package):
-            print(green('\nInstalling package: {0}'.format(package)))
-            run('apt-get install -y ' + package, pty=False)
-        else:
-            print(green('Package ' + package + ' already installed'))
+def install_debian_package(package):
+    if not package_installed(package):
+        print(green('\nInstalling package: {0}'.format(package)))
+        run('apt-get install -y ' + package, pty=False)
+    else:
+        print(green('Package ' + package + ' already installed'))
 
+def autoremove_debian_package_remnants():
     print(green('\nRemoving unneeded package remnants'))
     run('apt-get autoremove -y', pty=False)
 
@@ -137,6 +140,35 @@ def allow_uwsgi_to_control_supervisor():
 
 def allow_uwsgi_to_access_usb_port():
     run('usermod -a -G dialout www-data')
+
+def install_libpruio():
+    install_debian_package('am335x-pru-package')
+
+    run('wget http://www.freebasic-portal.de/dlfiles/589/BBB_fbc-1.00.tar.bz2')
+    run('tar xjf BBB_fbc-1.00.tar.bz2')
+    run('mv BBB_fbc-1.00/usr/bin/fbc /usr/bin/')
+    run('mv BBB_fbc-1.00/usr/lib/freebasic /usr/lib/')
+    run('rm -rf BBB_fbc-1.00')
+
+    run('http://www.freebasic-portal.de/dlfiles/539/FB_prussdrv-0.0.tar.bz2')
+    run('tar xjf FB_prussdrv-0.0.tar.bz2')
+    run('mkdir /usr/include/freebasic/BBB')
+    run('mv FB_prussdrv-0.0/include /usr/include/freebasic/BBB/')
+    run('rm /usr/bin/pasm')
+    run('mv FB_prussdrv-0.0/bin/pasm /usr/bin/pasm')
+    run('rm -rf FB_prussdrv-0.0')
+
+    run('wget https://github.com/rascalmicro/libpruio/archive/master.zip')
+    run('tar xjf master.zip')
+    run('mv master/src/c_wrapper/libpruio.so /usr/lib') # directory name is probably wrong
+    run('ldconfig')
+    run('mv master/src/c_wrapper/pruio*.h* /usr/include')
+    run('mv master/src/config/libpruio-00A0.dtbo /lib/firmware') # note corrected filename 0A00 -> 00A0
+    run('mv master/src/pruio/pruio*.bi /usr/include/freebasic/BBB')
+    run('mv master/src/pruio/pruio.hp /usr/local/include/freebasic/BBB')
+    run('echo uio_pruss >> /etc/modules') # load uio_pruss module at boot
+    put('libpruio.service', '/etc/systemd/system/libpruio.service')
+    run('systemctl enable libpruio.service')
 
 def install_oh_my_zsh():
     run('wget --no-check-certificate http://install.ohmyz.sh -O - | sh')
