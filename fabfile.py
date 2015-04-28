@@ -107,8 +107,7 @@ def install_rascal_software():
     run('touch /var/log/uwsgi/public.log')
     run('touch /var/log/uwsgi/emperor.log')
     run('touch /var/log/uwsgi/editor.log')
-    run('chown -R www-data /var/log/uwsgi')
-    run('chgrp -R www-data /var/log/uwsgi')
+    run('chown -R www-data:www-data /var/log/uwsgi')
     run('adduser www-data shadow') # just 'read' access so uWSGI can authenticate against /etc/shadow
 
     if exists('/var/www/editor/static/codemirror'):
@@ -116,6 +115,7 @@ def install_rascal_software():
         run('wget https://github.com/marijnh/CodeMirror/archive/4.2.0.tar.gz')
         run('tar xzvf 4.2.0.tar.gz')
         run('mv CodeMirror-4.2.0/ /var/www/editor/static/codemirror')
+    run('chown -R www-data:www-data /var/www')
 
     run('systemctl enable nginx.service')
 
@@ -146,26 +146,25 @@ def install_libpruio():
 
     run('wget http://www.freebasic-portal.de/dlfiles/589/BBB_fbc-1.00.tar.bz2')
     run('tar xjf BBB_fbc-1.00.tar.bz2')
-    run('mv BBB_fbc-1.00/usr/bin/fbc /usr/bin/')
-    run('mv BBB_fbc-1.00/usr/lib/freebasic /usr/lib/')
+    run('cp  BBB_fbc-1.00/usr/local/bin/fbc /usr/bin/')
+    run('cp -r BBB_fbc-1.00/usr/local/lib/freebasic/* /usr/lib/')
     run('rm -rf BBB_fbc-1.00')
 
-    run('http://www.freebasic-portal.de/dlfiles/539/FB_prussdrv-0.0.tar.bz2')
+    run('wget http://www.freebasic-portal.de/dlfiles/539/FB_prussdrv-0.0.tar.bz2')
     run('tar xjf FB_prussdrv-0.0.tar.bz2')
-    run('mkdir /usr/include/freebasic/BBB')
-    run('mv FB_prussdrv-0.0/include /usr/include/freebasic/BBB/')
-    run('rm /usr/bin/pasm')
+    run('mkdir -p /usr/include/freebasic/BBB')
+    run('cp -r FB_prussdrv-0.0/include/* /usr/include/freebasic/BBB/')
     run('mv FB_prussdrv-0.0/bin/pasm /usr/bin/pasm')
     run('rm -rf FB_prussdrv-0.0')
 
     run('wget https://github.com/rascalmicro/libpruio/archive/master.zip')
-    run('tar xjf master.zip')
-    run('mv master/src/c_wrapper/libpruio.so /usr/lib') # directory name is probably wrong
+    run('unzip master.zip')
+    run('cp libpruio-master/src/c_wrapper/libpruio.so /usr/lib') # directory name is probably wrong
     run('ldconfig')
-    run('mv master/src/c_wrapper/pruio*.h* /usr/include')
-    run('mv master/src/config/libpruio-00A0.dtbo /lib/firmware') # note corrected filename 0A00 -> 00A0
-    run('mv master/src/pruio/pruio*.bi /usr/include/freebasic/BBB')
-    run('mv master/src/pruio/pruio.hp /usr/local/include/freebasic/BBB')
+    run('cp libpruio-master/src/c_wrapper/pruio*.h* /usr/include')
+    run('cp libpruio-master/src/config/libpruio-00A0.dtbo /lib/firmware') # note corrected filename 0A00 -> 00A0
+    run('cp libpruio-master/src/pruio/pruio*.bi /usr/include/freebasic/BBB')
+    run('cp libpruio-master/src/pruio/pruio.hp /usr/include/freebasic/BBB')
     run('echo uio_pruss >> /etc/modules') # load uio_pruss module at boot
     put('libpruio.service', '/etc/systemd/system/libpruio.service')
     run('systemctl enable libpruio.service')
