@@ -1,9 +1,0 @@
-[Unit]
-Description=Programmable Realtime Unit IO library
-
-[Service]
-Type=oneshot
-ExecStart=/bin/echo libpruio > /sys/devices/bone_capemgr.*/slots
-
-[Install]
-WantedBy=multi-user.target

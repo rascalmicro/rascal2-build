@@ -1,13 +1,14 @@
 PYTHON_MODULES_TO_INSTALL = [
+    'flask',
     'geopy',
     'gevent',
-    'gevent-websocket',
+#    'gevent-websocket',
     'Flask-uWSGI-WebSocket',
     'markdown2',
     'redis',
     'uwsgi',
     'pytronics',
-    'pytumblr',
+#    'pytumblr', # appears busted for Python 3
     'bitstring',
     'Flask-Login',
     'twilio'
@@ -26,6 +27,7 @@ DEBIAN_PACKAGES_TO_INSTALL = [
     'gpsd-clients',
     'htop',
     'ipython-notebook',
+    'ipython3-notebook',
     'libpq-dev',
     'libftdi-dev',
     'lsof',
@@ -33,14 +35,24 @@ DEBIAN_PACKAGES_TO_INSTALL = [
     'postgis',
     'postgresql',
     'python-flask',
+    'python3-flask',
     'python-matplotlib',
-    'python-mpltoolkits.basemap',
+    'python3-matplotlib',
+    'python-mpltoolkits.basemap',# No Python 3 version yet
+    'python3-pip',
     'python-psycopg2',
+    'python3-psycopg2',
     'python-requests',
+    'python3-requests',
+#    'python3-rpi.gpio',
     'python-scipy',
+    'python3-scipy',
+    'python3-serial',
+    'python3-smbus',
     'python-webcolors',
+    'python3-webcolors',
     'strace',
-    'supervisor',
+    'supervisor', # Not sure if this supports Python 3 or not
     'vim',
     'zip',
     'zsh'
@@ -59,11 +71,4 @@ DEBIAN_PACKAGES_TO_REMOVE = [
     'xserver-common',
     #'libgtk2.0-common', # probably breaks OpenCV. Also, required by gpsd-clients (and maybe also by some Python libs)
     'libgtk-3-common' # removes Gstreamer and Numpy
-]
-
-BONESCRIPT_SERVICES = [
-    'cloud9',
-    'bonescript',
-    'bonescript-autorun',
-    'apache2'
 ]

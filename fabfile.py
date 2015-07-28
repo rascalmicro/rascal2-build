@@ -8,7 +8,7 @@ from fabric.operations import local, reboot
 import fabtools
 from package_lists import *
 
-env.host = 'beaglebone.local'
+env.host = 'raspberrypi.local'
 env.user = 'root'
 
 # Usage
@@ -20,13 +20,12 @@ env.user = 'root'
 
 @task
 def predeploy():
-    local('ssh-keygen -R beaglebone.local') # remove host key, if it exists
+    local('ssh-keygen -R raspberrypi.local') # remove host key, if it exists
     prep_host() # # Set the password. Can't log in to blank-password host with Fabric.
     set_hostname()
 
 @task
 def deploy():
-    disable_bonescript_and_release_http_port()
     update_debian_package_lists()
     remove_unneeded_debian_packages()
     for package in DEBIAN_PACKAGES_TO_INSTALL:
@@ -36,7 +35,6 @@ def deploy():
     install_config_files()
     allow_uwsgi_to_control_supervisor()
     allow_uwsgi_to_access_usb_port()
-    install_libpruio()
     install_oh_my_zsh()
     autoremove_debian_package_remnants()
     print(green('Rascal 2 deployment complete. Rebooting . . .'))
@@ -53,15 +51,6 @@ def set_hostname():
     print(green('Rebooting . . .'))
     reboot()
 
-def disable_bonescript_and_release_http_port():
-    print(green('Disabling Bonescript . . .'))
-    with settings(warn_only=True):
-        for service in BONESCRIPT_SERVICES:
-            fabtools.systemd.stop_and_disable(service)
-    fabtools.utils.run_as_root('systemctl disable bonescript.socket')
-    fabtools.utils.run_as_root('systemctl disable cloud9.socket')
-    #reboot() # to get init process to release port 80
-
 def update_debian_package_lists():
     print(green('\nUpdating package repository lists'))
     run('apt-get update -y', pty=False)
@@ -69,7 +58,7 @@ def update_debian_package_lists():
 def install_python_modules():
     for module in PYTHON_MODULES_TO_INSTALL:
         print(green('\nInstalling Python module: {0}'.format(module)))
-        run('pip install ' + module)
+        run('pip3 install ' + module)
 
 def package_installed(package):
     cmd = 'dpkg-query -l "{0}" | grep -q ^.i'.format(package)
@@ -80,19 +69,19 @@ def package_installed(package):
 def install_debian_package(package):
     if not package_installed(package):
         print(green('\nInstalling package: {0}'.format(package)))
-        run('apt-get install -y ' + package, pty=False)
+        run('DEBIAN_FRONTEND=noninteractive apt-get install -y ' + package, pty=False)
     else:
         print(green('Package ' + package + ' already installed'))
 
 def autoremove_debian_package_remnants():
     print(green('\nRemoving unneeded package remnants'))
-    run('apt-get autoremove -y', pty=False)
+    run('DEBIAN_FRONTEND=noninteractive apt-get autoremove -y', pty=False)
 
 def remove_unneeded_debian_packages():
     for package in DEBIAN_PACKAGES_TO_REMOVE:
         if package_installed(package):
             print(green('\nRemoving package: {0}'.format(package)))
-            run('apt-get remove -y ' + package, pty=False)
+            run('DEBIAN_FRONTEND=noninteractive apt-get remove -y ' + package, pty=False)
         else:
             print(green('Package ' + package + ' already removed.'))
 
@@ -140,34 +129,6 @@ def allow_uwsgi_to_control_supervisor():
 
 def allow_uwsgi_to_access_usb_port():
     run('usermod -a -G dialout www-data')
-
-def install_libpruio():
-    install_debian_package('am335x-pru-package')
-
-    run('wget http://www.freebasic-portal.de/dlfiles/589/BBB_fbc-1.00.tar.bz2')
-    run('tar xjf BBB_fbc-1.00.tar.bz2')
-    run('cp  BBB_fbc-1.00/usr/local/bin/fbc /usr/bin/')
-    run('cp -r BBB_fbc-1.00/usr/local/lib/freebasic/* /usr/lib/')
-    run('rm -rf BBB_fbc-1.00')
-
-    run('wget http://www.freebasic-portal.de/dlfiles/539/FB_prussdrv-0.0.tar.bz2')
-    run('tar xjf FB_prussdrv-0.0.tar.bz2')
-    run('mkdir -p /usr/include/freebasic/BBB')
-    run('cp -r FB_prussdrv-0.0/include/* /usr/include/freebasic/BBB/')
-    run('mv FB_prussdrv-0.0/bin/pasm /usr/bin/pasm')
-    run('rm -rf FB_prussdrv-0.0')
-
-    run('wget https://github.com/rascalmicro/libpruio/archive/master.zip')
-    run('unzip master.zip')
-    run('cp libpruio-master/src/c_wrapper/libpruio.so /usr/lib') # directory name is probably wrong
-    run('ldconfig')
-    run('cp libpruio-master/src/c_wrapper/pruio*.h* /usr/include')
-    run('cp libpruio-master/src/config/libpruio-00A0.dtbo /lib/firmware') # note corrected filename 0A00 -> 00A0
-    run('cp libpruio-master/src/pruio/pruio*.bi /usr/include/freebasic/BBB')
-    run('cp libpruio-master/src/pruio/pruio.hp /usr/include/freebasic/BBB')
-    run('echo uio_pruss >> /etc/modules') # load uio_pruss module at boot
-    put('libpruio.service', '/etc/systemd/system/libpruio.service')
-    run('systemctl enable libpruio.service')
 
 def install_oh_my_zsh():
     run('wget --no-check-certificate http://install.ohmyz.sh -O - | sh')
