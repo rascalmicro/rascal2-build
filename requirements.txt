@@ -5,7 +5,7 @@ argparse==1.2.1
 configobj==4.7.2
 distribute==0.7.3
 gyp==0.1
-numpy==1.6.2
+numpy==1.25.0
 pyserial==2.5
 urwid==1.0.1
 wicd==1.7.2.4
